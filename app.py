@@ -33,7 +33,7 @@ init_users_table()
 
 @app.get("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", username=session.get("username"))
 
 @app.get("/search")
 def search():
@@ -101,28 +101,54 @@ def signup():
         return "Username and password required.", 400
     
     password_hash = generate_password_hash(password)
+    conn = None
 
     try:
         conn = db_conn()
-
         cur = conn.cursor()
+
         cur.execute(
             "INSERT INTO users (username, password_hash) VALUES (?, ?)",
             (username, password_hash)
         )
 
         conn.commit()
+
         session["user_id"] = cur.lastrowid
-        session[username] = username
+        session["username"] = username
 
-        conn.close()
-
-        return redirect ("/")
+        return redirect("/")
     
     except sqlite3.IntegrityError:
         return "Username already exists", 400
 
+    finally:
+        if conn:
+            conn.close()
 
+@app.post("/login")
+def login():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "").strip()
+
+    conn = db_conn()
+    user = conn.execute(
+        "SELECT * FROM users WHERE username = ?",
+        (username,)
+    ).fetchone()
+
+    conn.close()
+
+    if user and check_password_hash(user["password_hash"], password):
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+        return redirect("/")
+    return "Invalid username or password", 401
+
+@app.get("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 
 if __name__ == "__main__":

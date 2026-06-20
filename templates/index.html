@@ -13,6 +13,13 @@
 
   </header>
 
+{% if username %}
+<div class="authBox">
+  Logged in as <strong>{{ username }}</strong>
+  <a href="/logout">Logout</a>
+</div>
+{% endif %}
+
   <div class="authBox">
     <form action="/signup" method="POST">
       <input name="username" placeholder="Username" required>
@@ -21,7 +28,11 @@
     </form>
   </div>
 
-
+  <form action="/login" method="POST">
+    <input name="username" placeholder="Username" required>
+    <input name="password" type="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
 
 
 
