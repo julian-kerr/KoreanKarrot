@@ -1,0 +1,130 @@
+import os
+import sqlite3
+from flask import Flask, render_template, request, jsonify, session, redirect
+from krdict import lookup_word
+from werkzeug.security import generate_password_hash, check_password_hash
+
+DB_PATH = os.path.join("db", "app.db")
+
+app = Flask(__name__)
+
+app.secret_key = "dev-secret-change-later"
+
+def db_conn():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_users_table():
+    conn = db_conn()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_users_table()
+
+@app.get("/")
+def home():
+    return render_template("index.html")
+
+@app.get("/search")
+def search():
+    
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify([])
+
+    conn = db_conn()
+
+    # FTS (fast) — may return fewer results for short queries
+    try:
+        rows = conn.execute("""
+            SELECT v.title, v.youtube_id, f.start, f.text
+            FROM captions_fts f
+            JOIN videos v ON v.id = f.video_id
+            WHERE captions_fts MATCH ?
+            LIMIT 30
+        """, (q,)).fetchall()
+    except Exception:
+        rows = []
+
+    # Fallback: LIKE (slower but super reliable for Korean substrings)
+    if not rows:
+        rows = conn.execute("""
+            SELECT v.title, v.youtube_id, c.start, c.text
+            FROM captions c
+            JOIN videos v ON v.id = c.video_id
+            WHERE c.text LIKE ?
+            LIMIT 3000
+        """, (f"%{q}%",)).fetchall()
+
+    conn.close()
+
+    return jsonify([{
+        "title": r["title"],
+        "youtube_id": r["youtube_id"],
+        "start": float(r["start"]),
+        "text": r["text"]
+    } for r in rows])
+
+@app.get("/dictionary")
+def dictionary():
+    word = request.args.get("word", "").strip()
+
+    if not word:
+        return jsonify({"error": "No word provided"}), 400
+
+    result = lookup_word(word)
+
+    if result is None:
+        return jsonify({"found": False})
+
+    return jsonify({
+        "found": True,
+        "entry": result
+    })
+
+@app.post("/signup")
+def signup():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "").strip()
+    
+    if not username or not password:
+        return "Username and password required.", 400
+    
+    password_hash = generate_password_hash(password)
+
+    try:
+        conn = db_conn()
+
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+            (username, password_hash)
+        )
+
+        conn.commit()
+        session["user_id"] = cur.lastrowid
+        session[username] = username
+
+        conn.close()
+
+        return redirect ("/")
+    
+    except sqlite3.IntegrityError:
+        return "Username already exists", 400
+
+
+
+
+if __name__ == "__main__":
+    # Use port 5000 (default). If you get a port-in-use error, change to 5001.
+    app.run(debug=True, host="127.0.0.1", port=5001)

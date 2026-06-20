@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KoreanKarrot</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">KoreanKarrot 🥕</div>
+    <div class="sub">Search a Korean word → jump to real clips instantly</div>
+
+  </header>
+
+  <div class="authBox">
+    <form action="/signup" method="POST">
+      <input name="username" placeholder="Username" required>
+      <input name="password" placeholder="Password" required>
+      <button type="submit">Sign up</button>
+    </form>
+  </div>
+
+
+
+
+
+  <main class="layout">
+    <section class="panel">
+      <div class="searchRow">
+        <input id="q" placeholder="Search: 진짜, 오늘, 먹..." autocomplete="off" />
+        <button id="btn">Search</button>
+      </div>
+      
+      <div class="sampleWords">
+        <span class="sampleLabel">Example Words:</span>
+
+        <button class="sampleWord" data-word="안녕">안녕</button>
+        <button class="sampleWord" data-word="감사합니다">감사합니다</button>
+        <button class="sampleWord" data-word="진짜">진짜</button>
+        <button class="sampleWord" data-word="괜찮아">괜찮아</button>
+        <button class="sampleWord" data-word="맛있어">맛있어</button>
+        <button class="sampleWord" data-word="어디">어디</button>
+      </div>
+
+
+      <div id="dictionary" class="dictionary hidden"></div>
+
+      <div class="results" id="results"></div>
+
+      
+    </section>
+
+    <section class="player">
+      <div id="nowPlaying" class="nowPlaying">Search something to display a video with your word used in context.</div>
+      <iframe
+        id="yt"
+        width="100%"
+        height="420"
+        src=""
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+      ></iframe>
+
+      <div class="navRow">
+        <button id="prev">◀ Prev</button>
+        <button id="next">Next ▶</button>
+      </div>
+
+      <div id="dictionaryBox" class="dictionaryBox">
+      Search a word to see the dictionary meaning here.
+</div>
+
+<div id="dictionary" class="dictionary hidden"></div>
+    </section>
+  </main>
+  <div id="logodiv">
+  <p id="logo">🥕</p>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
