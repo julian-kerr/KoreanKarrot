@@ -49,6 +49,28 @@ init_users_table()
 init_users_table()
 init_saved_words_table()
 
+
+@app.post("/save-word")
+def save_word():
+    if "user_id" not in session:
+        return jsonify({"ok": False, "error": "Login Required"}), 401
+    
+    word = request.form.get("word", "").strip()
+
+    if not word:
+        return jsonify({ok: False, "error": "No word provided"}), 400
+    
+    conn = db_conn()
+    conn.execute(
+        "INSERT INTO saved_words (user_id, word) VALUES (?, ?)",
+        (session["user_id"], word)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"ok": True})
+
+
 @app.get("/")
 def home():
     return render_template("index.html", username=session.get("username"))

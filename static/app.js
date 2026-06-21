@@ -44,9 +44,32 @@ async function showDictionary(query) {
       ${e.pronunciation ? `Pronunciation: ${escapeHtml(e.pronunciation)}` : ""}
       ${e.pos ? ` · ${escapeHtml(e.pos)}` : ""}
       ${e.level ? ` · Level: ${escapeHtml(e.level)}` : ""}
+      <button id="saveWordBtn">⭐ Save Word</button>
     </div>
     <div class="dictMeaning">${escapeHtml(e.definition || "No definition available.")}</div>
   `;
+}
+
+const saveBtn = document.getElementById("saveWordBtn");
+if (saveBtn) {
+  saveBtn.onclick = async () => {
+    const res = await fetch("/save-word", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `word=${encodedURIComponent(word)}`
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      saveBtn.textContent = "✅ Saved";
+    }
+    else{
+      alert(data.error || "Failed to save word")
+    }
+  };
 }
 
 function translatePos(pos) {
@@ -127,7 +150,32 @@ async function loadDictionary(word) {
       ${e.meaning ? `<p><strong>Meaning:</strong> ${e.meaning}</p>` : ""}
 
       <p>${e.definition || "No definition available."}</p>
+
+      <button id="saveWordBtn">⭐ Save Word</button>
     `;
+
+    const saveBtn = document.getElementById("saveWordBtn");
+
+    if (saveBtn) {
+      saveBtn.onclick = async () => {
+        const res = await fetch("/save-word", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `word=${encodeURIComponent(word)}`
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+          saveBtn.textContent = "✅ Saved";
+        } else {
+          alert(data.error || "Failed to save word");
+        }
+      };
+    }
+
   } catch (err) {
     console.error(err);
     box.innerHTML = "Dictionary lookup failed.";
@@ -267,7 +315,7 @@ document.querySelectorAll(".sampleWord").forEach(btn => {
   btn.addEventListener("click", () => {
     const word = btn.dataset.word;
 
-    document.querySelector("input").value = word;
+    document.getElementById("q").value = word;
 
     doSearch(); 
   });
