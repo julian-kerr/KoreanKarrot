@@ -50,27 +50,7 @@ async function showDictionary(query) {
   `;
 }
 
-const saveBtn = document.getElementById("saveWordBtn");
-if (saveBtn) {
-  saveBtn.onclick = async () => {
-    const res = await fetch("/save-word", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `word=${encodedURIComponent(word)}`
-    });
 
-    const data = await res.json();
-
-    if (data.ok) {
-      saveBtn.textContent = "✅ Saved";
-    }
-    else{
-      alert(data.error || "Failed to save word")
-    }
-  };
-}
 
 function translatePos(pos) {
   const map = {
@@ -167,14 +147,17 @@ async function loadDictionary(word) {
         });
 
         const data = await res.json();
-
+        console.log("MY WORDS:", data);
+        
         if (data.ok) {
           saveBtn.textContent = "✅ Saved";
+          await loadMyWords();
         } else {
           alert(data.error || "Failed to save word");
         }
       };
     }
+
 
   } catch (err) {
     console.error(err);
@@ -186,7 +169,7 @@ async function lookupDictionary(query) {
   dictionaryEl.classList.remove("hidden");
   dictionaryEl.innerHTML = "Looking up dictionary...";
 
-  const res = await fetch(`/dictionary?word=${encodeURIComponent(query)}`);
+  const res = await fetch("/my-words?ts=" + Date.now());
   const data = await res.json();
 
   if (!data.found) {
@@ -320,6 +303,40 @@ document.querySelectorAll(".sampleWord").forEach(btn => {
     doSearch(); 
   });
 });
+
+
+async function loadMyWords(){
+  const list = document.getElementById("myWordsList");
+  if (!list) return;
+
+  const res = await fetch("/my-words");
+  const data = await res.json();
+
+  if (!data.ok){
+    list.innerHTML = "Log in to see saved words.";
+    return;
+  }
+
+  if (!data.words.length){
+    list.innerHTML = "No saved words yet.";
+    return;
+  }
+
+  list.innerHTML = data.words.map(w => `
+    <button class="savedWord" data-word="${w.word}">${w.word}</button>
+  `).join("");
+
+
+  document.querySelectorAll(".savedWord").forEach(btn => {
+    btn.onclick = () => {
+      document.getElementById("q").value = btn.dataset.word;
+      doSearch();
+    };
+  });
+}
+
+loadMyWords();
+
 
 prevBtn.onclick = () => playIndex(idx - 1);
 nextBtn.onclick = () => playIndex(idx + 1);

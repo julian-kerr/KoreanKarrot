@@ -70,6 +70,33 @@ def save_word():
 
     return jsonify({"ok": True})
 
+@app.get("/my-words")
+def my_words():
+    if "user_id" not in session:
+        return jsonify({"ok": False, "error": "Login required"}), 401
+    
+    conn = db_conn()
+
+    rows = conn.execute("""
+                    SELECT id, word, created_at
+                    FROM saved_words
+                    WHERE user_id = ?
+                    ORDER BY created_at DESC
+                    """, (session["user_id"], )).fetchall()
+    conn.close()
+
+    return jsonify({
+        "ok": True,
+        "words": [
+            {
+                "id": row["id"],
+                "word": row["word"],
+                "created_at": row["created_at"]
+            }
+            for row in rows
+        ]
+    })
+
 
 @app.get("/")
 def home():
