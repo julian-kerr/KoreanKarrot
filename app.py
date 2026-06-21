@@ -29,7 +29,25 @@ def init_users_table():
     conn.commit()
     conn.close()
 
+def init_saved_words_table():
+    conn = db_conn()
+
+    conn.execute("""
+                 CREATE TABLE IF NOT EXISTS saved_words (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+                 word TEXT NOT NULL,
+                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                 FOREIGN KEY(user_id) REFERENCES users(id)
+                )
+            """)
+
+    conn.commit()
+    conn.close()
+
+
 init_users_table()
+init_users_table()
+init_saved_words_table()
 
 @app.get("/")
 def home():
