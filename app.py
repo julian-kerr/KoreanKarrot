@@ -58,17 +58,38 @@ def save_word():
     word = request.form.get("word", "").strip()
 
     if not word:
-        return jsonify({ok: False, "error": "No word provided"}), 400
+        return jsonify({"ok": False, "error": "No word provided"}), 400
     
     conn = db_conn()
+
+    existing = conn.execute(
+        """
+        SELECT id
+        FROM saved_words
+        WHERE user_id = ? AND word = ?
+        """,
+        (session["user_id"], word)
+    ).fetchone()
+
+    if existing:
+        conn.close()
+        return jsonify({
+            "ok": True,
+            "already_saved": True
+        })
+
     conn.execute(
         "INSERT INTO saved_words (user_id, word) VALUES (?, ?)",
         (session["user_id"], word)
     )
+
     conn.commit()
     conn.close()
 
-    return jsonify({"ok": True})
+    return jsonify({
+        "ok": True,
+        "already_saved": False
+    })
 
 @app.get("/my-words")
 def my_words():

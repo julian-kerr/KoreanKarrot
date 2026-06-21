@@ -149,7 +149,11 @@ async function loadDictionary(word) {
         const data = await res.json();
         console.log("MY WORDS:", data);
         
-        if (data.ok) {
+
+        if (data.already_saved){
+          saveBtn.textContent = "✓ Already Saved";
+        }
+        else if (data.already) {
           saveBtn.textContent = "✅ Saved";
           await loadMyWords();
         } else {
