@@ -180,3 +180,22 @@ mark { background: #2a2a30; color: #fff; padding: 0 4px; border-radius: 6px; }
 .videoGroup.expanded .videoHeader {
   background: #1c1c22;
 }
+
+.savedWordRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.savedWord {
+  flex: 1;
+  text-align: left;
+}
+
+.deleteWord {
+  width: 34px;
+  padding: 8px;
+  color: #ff6b6b;
+  border-color: #5a2a2a;
+}

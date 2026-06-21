@@ -91,6 +91,23 @@ def save_word():
         "already_saved": False
     })
 
+@app.post("/delete-word")
+def delete_word():
+    if "user_id" not in session:
+        return jsonify({"ok": False, "error": "Login Required"}), 401
+
+    word_id = request.form.get("id", "").strip()
+
+    conn = db_conn()
+    conn.execute(
+        "DELETE FROM saved_words WHERE id = ? AND user_id = ?",
+        (word_id, session["user_id"])
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"ok": True})
+
 @app.get("/my-words")
 def my_words():
     if "user_id" not in session:

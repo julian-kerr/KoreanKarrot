@@ -150,13 +150,14 @@ async function loadDictionary(word) {
         console.log("MY WORDS:", data);
         
 
-        if (data.already_saved){
+        if (data.already_saved) {
           saveBtn.textContent = "✓ Already Saved";
-        }
-        else if (data.already) {
+        } 
+        else if (data.ok) {
           saveBtn.textContent = "✅ Saved";
           await loadMyWords();
-        } else {
+        } 
+        else {
           alert(data.error || "Failed to save word");
         }
       };
@@ -327,7 +328,15 @@ async function loadMyWords(){
   }
 
   list.innerHTML = data.words.map(w => `
-    <button class="savedWord" data-word="${w.word}">${w.word}</button>
+    <div class="savedWordRow">
+      <button class="savedWord" data-word="${w.word}">
+        ${w.word}
+      </button>
+
+      <button type="button" class="deleteWord" data-id="${w.id}">
+        ✕
+      </button>
+    </div>
   `).join("");
 
 
@@ -337,6 +346,21 @@ async function loadMyWords(){
       doSearch();
     };
   });
+  
+  document.querySelectorAll(".deleteWord").forEach(btn => {
+    btn.onclick = async () => {
+      await fetch("/delete-word", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `id=${btn.dataset.id}`
+      });
+
+      loadMyWords();
+    };
+  });
+
 }
 
 loadMyWords();
