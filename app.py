@@ -46,7 +46,6 @@ def init_saved_words_table():
 
 
 init_users_table()
-init_users_table()
 init_saved_words_table()
 
 
@@ -164,7 +163,7 @@ def search():
     # Fallback: LIKE (slower but super reliable for Korean substrings)
     if not rows:
         rows = conn.execute("""
-            SELECT v.title, v.youtube_id, c.start, c.text
+            SELECT v.title, v.youtube_id, v.source, c.start, c.text
             FROM captions c
             JOIN videos v ON v.id = c.video_id
             WHERE c.text LIKE ?
@@ -176,6 +175,7 @@ def search():
     return jsonify([{
         "title": r["title"],
         "youtube_id": r["youtube_id"],
+        "source": r["source"],
         "start": float(r["start"]),
         "text": r["text"]
     } for r in rows])

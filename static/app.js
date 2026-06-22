@@ -203,16 +203,25 @@ function escapeHtml(str) {
     .replaceAll(">", "&gt;");
 }
 
-function renderResults(openTitle = null) {
-  resultsEl.innerHTML = "";
+function renderSourceSection(sectionTitle, sectionItems, openTitle = null) {
+  if (!sectionItems.length) return;
 
+  const sectionDiv = document.createElement("div");
+  sectionDiv.className = "sourceSection";
+
+  const sectionHeader = document.createElement("div");
+  sectionHeader.className = "sourceHeader";
+  sectionHeader.textContent = `${sectionTitle} (${sectionItems.length} results)`;
+
+  const sectionBody = document.createElement("div");
+  sectionBody.className = "sourceBody hidden";
   const grouped = {};
 
-  items.forEach((it, i) => {
+  sectionItems.forEach((it) => {
     if (!grouped[it.title]) {
       grouped[it.title] = [];
     }
-    grouped[it.title].push({ ...it, originalIndex: i });
+    grouped[it.title].push(it);
   });
 
   Object.keys(grouped).forEach((title) => {
@@ -243,10 +252,12 @@ function renderResults(openTitle = null) {
     grouped[title].forEach((it) => {
       const div = document.createElement("div");
       div.className = "result" + (it.originalIndex === idx ? " active" : "");
+
       div.innerHTML = `
         <div class="line">${highlight(it.text, q.value.trim())}</div>
         <div class="meta">${Math.floor(it.start)}s</div>
       `;
+
       div.onclick = () => playIndex(it.originalIndex);
       body.appendChild(div);
     });
@@ -258,16 +269,48 @@ function renderResults(openTitle = null) {
 
     groupDiv.appendChild(header);
     groupDiv.appendChild(body);
-    resultsEl.appendChild(groupDiv);
+    sectionBody.appendChild(groupDiv);
   });
+
+  sectionHeader.onclick = () => {
+    sectionBody.classList.toggle("hidden");
+  };
+
+  sectionDiv.appendChild(sectionHeader);
+  sectionDiv.appendChild(sectionBody);
+  resultsEl.appendChild(sectionDiv);
 }
+
+function renderResults(openTitle = null) {
+  resultsEl.innerHTML = "";
+
+  const realItems = items
+    .map((it, i) => ({ ...it, originalIndex: i }))
+    .filter(it => it.source === "real");
+
+  const ttmikItems = items
+    .map((it, i) => ({ ...it, originalIndex: i }))
+    .filter(it => it.source === "ttmik");
+
+  renderSourceSection("🎬 Real Korean", realItems, openTitle);
+  renderSourceSection("📚 TTMIK Learning Clips", ttmikItems, openTitle);
+}
+
 
 function playIndex(i) {
   if (i < 0 || i >= items.length) return;
   idx = i;
   const it = items[idx];
   nowPlaying.textContent = `${it.title} — ${it.text}`;
-  yt.src = ytUrl(it.youtube_id, it.start);
+  let startTime = it.start;
+
+  if (it.source === "ttmik") {
+    startTime = Math.max(0, it.start - 7);
+  } else {
+    startTime = Math.max(0, it.start - 2);
+  }
+
+  yt.src = ytUrl(it.youtube_id, startTime);
   renderResults(it.title);
 }
 
@@ -290,7 +333,9 @@ async function doSearch() {
   }
 
   renderResults();
-  playIndex(0);
+  idx = -1;
+  yt.src = "";
+  nowPlaying.textContent = "Select a result to play a clip.";
 }
 
 btn.onclick = doSearch;
