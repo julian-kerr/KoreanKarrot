@@ -151,7 +151,7 @@ def search():
     # FTS (fast) — may return fewer results for short queries
     try:
         rows = conn.execute("""
-            SELECT v.title, v.youtube_id, f.start, f.text
+            SELECT v.title, v.youtube_id, v.source, f.start, f.text
             FROM captions_fts f
             JOIN videos v ON v.id = f.video_id
             WHERE captions_fts MATCH ?
@@ -167,8 +167,22 @@ def search():
             FROM captions c
             JOIN videos v ON v.id = c.video_id
             WHERE c.text LIKE ?
+            ORDER BY
+                CASE
+                    WHEN c.text = ? THEN 0
+                    WHEN c.text LIKE ? THEN 1
+                    WHEN v.title LIKE ? THEN 2
+                    ELSE 3
+                END,
+                v.source DESC,
+                c.start ASC
             LIMIT 3000
-        """, (f"%{q}%",)).fetchall()
+        """, (
+                f"%{q}%",
+                q,
+                f"{q}%",
+                f"%{q}%"
+            )).fetchall()
 
     conn.close()
 
