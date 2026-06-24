@@ -252,7 +252,7 @@ mark { background: #2a2a30; color: #fff; padding: 0 4px; border-radius: 6px; }
 }
 
 .hero {
-  min-height: 70vh;
+  min-height: calc(100vh - 80px);
   padding: 70px 8vw;
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -453,6 +453,7 @@ button:active,
 .appWorld {
   max-width: 1500px;
   margin: 70px auto;
+  margin-top: 90px;
   padding: 28px;
   border-radius: 36px;
   background:
@@ -509,4 +510,16 @@ button:active,
   border: 2px solid rgba(255,165,0,0.18);
   box-shadow: 0 24px 70px rgba(0,0,0,0.35);
   padding: 24px;
+}
+
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: white;
+  opacity: 0.75;
+  text-decoration: none;
+  font-weight: 700;
 }
