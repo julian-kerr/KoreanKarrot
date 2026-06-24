@@ -399,3 +399,114 @@ mark { background: #2a2a30; color: #fff; padding: 0 4px; border-radius: 6px; }
   z-index: 2;
 }
 
+.panel, .player {
+  border-radius: 28px;
+  border: 2px solid rgba(255, 165, 0, 0.28);
+  box-shadow: 0 18px 0 rgba(255, 165, 0, 0.08),
+              0 30px 80px rgba(0,0,0,0.35);
+}
+
+.result,
+.videoGroup,
+.dictionaryBox,
+.myWordBox {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.result:hover,
+.videoGroup:hover,
+.dictionaryBox:hover,
+.myWordBox:hover {
+  transform: translateY(-3px) rotate(-0.2deg);
+  box-shadow: 0 12px 30px rgba(255,165,0,0.12);
+}
+
+.sourceHeader {
+  font-size: 20px;
+  border: 2px solid rgba(255,165,0,0.45);
+  box-shadow: 0 6px 0 rgba(255,165,0,0.18);
+}
+
+.sourceHeader:hover {
+  transform: translateY(-2px);
+}
+
+button,
+.primaryHeroBtn,
+.secondaryHeroBtn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover,
+.primaryHeroBtn:hover,
+.secondaryHeroBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(255,165,0,0.18);
+}
+
+button:active,
+.primaryHeroBtn:active,
+.secondaryHeroBtn:active {
+  transform: translateY(1px);
+}
+
+.appWorld {
+  max-width: 1500px;
+  margin: 70px auto;
+  padding: 28px;
+  border-radius: 36px;
+  background:
+    radial-gradient(circle at top left, rgba(255,165,0,0.18), transparent 35%),
+    linear-gradient(180deg, rgba(22,22,30,0.92), rgba(10,10,14,0.96));
+  border: 2px solid rgba(255,165,0,0.2);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+}
+
+.appWorldHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.appBadge {
+  color: orange;
+  font-weight: 900;
+}
+
+.appWorldHeader h2 {
+  margin: 8px 0 0;
+  font-size: 38px;
+  letter-spacing: -0.04em;
+}
+
+.floatingMiniWords {
+  display: flex;
+  gap: 10px;
+}
+
+.floatingMiniWords span {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,165,0,0.16);
+  border: 1px solid rgba(255,165,0,0.35);
+  font-weight: 800;
+}
+
+.layout {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  gap: 28px;
+}
+
+.panel,
+.player {
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 30px;
+  border: 2px solid rgba(255,165,0,0.18);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.35);
+  padding: 24px;
+}
